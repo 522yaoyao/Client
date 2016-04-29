@@ -25,7 +25,16 @@ public class ChatClient extends Frame {
 			}
 			
 		});
+		tfTxt.addActionListener(new TFListener());
 		setVisible(true);
 	}
+	private class TFListener implements ActionListener {
 
+		public void actionPerformed(ActionEvent e) {
+			String s = tfTxt.getText().trim();
+			taContent.setText(s);
+			tfTxt.setText("");
+		}
+		
+	}
 }
