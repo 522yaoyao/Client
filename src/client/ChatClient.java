@@ -1,6 +1,7 @@
 package client;
 import java.awt.*;
 import java.awt.event.*;
+
 public class ChatClient extends Frame {
 
 	TextField tfTxt = new TextField();
