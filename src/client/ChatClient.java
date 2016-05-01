@@ -1,8 +1,11 @@
 package client;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.net.*;
 
 public class ChatClient extends Frame {
+	Socket s = null;
 
 	TextField tfTxt = new TextField();
 
@@ -28,14 +31,39 @@ public class ChatClient extends Frame {
 		});
 		tfTxt.addActionListener(new TFListener());
 		setVisible(true);
+		connect();
 	}
-	private class TFListener implements ActionListener {
-
-		public void actionPerformed(ActionEvent e) {
-			String s = tfTxt.getText().trim();
-			taContent.setText(s);
-			tfTxt.setText("");
+	
+	public void connect() {
+		try {
+			s = new Socket("127.0.0.1", 8888);
+System.out.println("connected!");
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		
 	}
+	
+	private class TFListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent e) {
+			String str = tfTxt.getText().trim();
+			taContent.setText(str);
+			tfTxt.setText("");
+			
+			try {
+				DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+				dos.writeUTF(str);
+				dos.flush();
+				dos.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			
+		}
+		
+	}
+
 }
