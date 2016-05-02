@@ -54,6 +54,7 @@ System.out.println("connected!");
 			tfTxt.setText("");
 			
 			try {
+//System.out.println(s);
 				DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 				dos.writeUTF(str);
 				dos.flush();
@@ -67,3 +68,4 @@ System.out.println("connected!");
 	}
 
 }
+
