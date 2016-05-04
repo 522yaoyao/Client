@@ -12,7 +12,10 @@ public class ChatServer {
 		try {
 			 ss = new ServerSocket(8888);//此类实现服务器套接字；
 		}
-		
+		 catch(BindException e){
+             System.out.println(" 端口以被占用.......");
+		   }
+		  
 			catch(IOException e){
                 e.printStackTrace(); 				
 			}
@@ -31,9 +34,14 @@ System.out.println("a client connected!");
 				dis.close();
 			}
 		
-		} catch (IOException e) {
+		  
+		}catch (EOFException e) {
 			System.out.println("Client closed !");
 		//	e.printStackTrace();
+		}
+		catch (IOException e) {
+			//System.out.println("Client closed !");
+			e.printStackTrace();
 		}
 	finally{
 		try{
@@ -42,9 +50,7 @@ System.out.println("a client connected!");
 		}
 		catch(IOException e1){
 			e1.printStackTrace();
-			
 		}
 	}
-
-}
+	}
 }
