@@ -1,10 +1,12 @@
 package client;
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 public class ChatServer {
 	boolean started=false;
 	ServerSocket ss=null;
+	List<Client> clients=new ArrayList<Client>();
 	public static void main(String[] args) {
 	       new ChatServer().start();
 	}
@@ -28,10 +30,10 @@ public class ChatServer {
 			while(started) {
 				
 			 Socket	 s = ss.accept();//Ω” ’
-			 Client client=new Client(s);
+			 Client c=new Client(s);
 System.out.println("a client connected!");
-			 new Thread(client).start();
-				
+			 new Thread(c).start();
+			clients.add(c);
 			//	dis.close();
 			}
 		
@@ -52,13 +54,23 @@ System.out.println("a client connected!");
 	class Client implements Runnable{
 		private Socket s;
 		private DataInputStream dis=null;
+		private DataOutputStream dos=null;
 		private boolean bConnected=false;
 		public Client(Socket s){
 			this.s=s;
 			try{
 			 dis=new DataInputStream(s.getInputStream());
+			 dos=new DataOutputStream(s.getOutputStream());
 			 bConnected=true;
 			}catch(IOException e){
+				e.printStackTrace();
+			}
+		}
+		public void send(String str){
+			try {
+				dos.writeUTF(str);
+			} catch (IOException e) {
+				
 				e.printStackTrace();
 			}
 		}
@@ -67,6 +79,11 @@ System.out.println("a client connected!");
                           while(bConnected){
 							String str = dis.readUTF();//◊Ë»˚ Ω
 							System.out.println(str);
+							for(int i=0;i<clients.size();i++){
+								Client c=clients.get(i);
+						       //  c. dos.writeUTF(str);
+								c.send(str);
+							}
                            }
 				}catch (EOFException e) {
 					System.out.println("Client closed !");
@@ -82,6 +99,8 @@ System.out.println("a client connected!");
 						s.close();
 						if(dis!=null)
 						dis.close();
+						if(dos!=null)
+							dos.close();
 					}
 					catch(IOException e1){
 						e1.printStackTrace();
