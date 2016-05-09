@@ -70,6 +70,7 @@ System.out.println("connected!");
 
 		public void actionPerformed(ActionEvent e) {
 			String str = tfTxt.getText().trim();
+/*发送方的数据也会发给自己*/
 			//taContent.setText(str);
 			tfTxt.setText("");//下面的文本框清空；
 			
@@ -90,6 +91,7 @@ private class RecvThread implements Runnable{
 		try{
 			while(bConnected){
 			String str=dis.readUTF();
+/*自己也会接收到所发的数据，文本框每次显示原本的数据加上接收到的数据*/			
 			taContent.setText(taContent.getText() + str +'\n');
 			
 			}
