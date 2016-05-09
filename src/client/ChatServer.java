@@ -34,6 +34,7 @@ public class ChatServer {
 System.out.println("a client connected!");
 			 new Thread(c).start();
 			clients.add(c);
+System.out.println("添加后"+clients.size());			
 			//	dis.close();
 			}
 		
@@ -61,7 +62,7 @@ System.out.println("a client connected!");
 			try{
 			 dis=new DataInputStream(s.getInputStream());
 			 dos=new DataOutputStream(s.getOutputStream());
-			 bConnected=true;
+			 bConnected=true;//当客户端输入数据后，线程被启动；
 			}catch(IOException e){
 				e.printStackTrace();
 			}
@@ -78,10 +79,10 @@ System.out.println("a client connected!");
 			try{
                           while(bConnected){
 							String str = dis.readUTF();//阻塞式
-							System.out.println(str);
+System.out.println(str);//打印接收到的信息；
 							for(int i=0;i<clients.size();i++){
 								Client c=clients.get(i);
-						       //  c. dos.writeUTF(str);
+System.out.println("添加前"+clients.size());		
 								c.send(str);
 							}
                            }

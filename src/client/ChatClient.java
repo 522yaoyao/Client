@@ -5,16 +5,14 @@ import java.io.*;
 import java.net.*;
 
 public class ChatClient extends Frame {
-	Socket s = null;
+	Socket s = null;//实现客户端的套接字；
 	DataOutputStream dos = null;
-	DataInputStream dis = null;
-	private boolean bConnected = false;
+	DataInputStream dis=null;
+	private boolean bConnected=false;
 
 	TextField tfTxt = new TextField();
 
 	TextArea taContent = new TextArea();
-	
-	Thread tRecv = new Thread(new RecvThread()); 
 
 	public static void main(String[] args) {
 		new ChatClient().launchFrame(); 
@@ -38,17 +36,17 @@ public class ChatClient extends Frame {
 		tfTxt.addActionListener(new TFListener());
 		setVisible(true);
 		connect();
-		
-		tRecv.start();
+		new Thread(new RecvThread()).start();
 	}
 	
 	public void connect() {
 		try {
 			s = new Socket("127.0.0.1", 8888);
 			dos = new DataOutputStream(s.getOutputStream());
-			dis = new DataInputStream(s.getInputStream());
+			dis=new DataInputStream(s.getInputStream());
+			bConnected=true;
+			
 System.out.println("connected!");
-			bConnected = true;
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -60,28 +58,12 @@ System.out.println("connected!");
 	public void disconnect() {
 		try {
 			dos.close();
-			dis.close();
 			s.close();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		/*
-		try {
-			bConnected = false;
-			tRecv.join();
-		} catch(InterruptedException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				dos.close();
-				dis.close();
-				s.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		*/
 	}
 	
 	private class TFListener implements ActionListener {
@@ -89,7 +71,7 @@ System.out.println("connected!");
 		public void actionPerformed(ActionEvent e) {
 			String str = tfTxt.getText().trim();
 			//taContent.setText(str);
-			tfTxt.setText("");
+			tfTxt.setText("");//下面的文本框清空；
 			
 			try {
 //System.out.println(s);
@@ -103,23 +85,17 @@ System.out.println("connected!");
 		}
 		
 	}
-	
-	private class RecvThread implements Runnable {
-
-		public void run() {
-			try {
-				while(bConnected) {
-					String str = dis.readUTF();
-					//System.out.println(str);
-					taContent.setText(taContent.getText() + str + '\n');
-				}
-			} catch (SocketException e) {
-				System.out.println("退出了，bye!");
-			} catch (IOException e) {
-				e.printStackTrace();
-			} 
+private class RecvThread implements Runnable{
+	public void run(){
+		try{
+			while(bConnected){
+			String str=dis.readUTF();
+			taContent.setText(taContent.getText() + str +'\n');
 			
+			}
+		}catch(IOException e){
+			e.printStackTrace();
 		}
-		
 	}
+}
 }
