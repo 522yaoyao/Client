@@ -14,13 +14,16 @@ public class ChatClient extends Frame {
 
 	TextArea taContent = new TextArea();
 
+	Thread   tRecv=new Thread(new RecvThread());
+	
 	public static void main(String[] args) {
 		new ChatClient().launchFrame(); 
 	}
 
 	public void launchFrame() {
 		setLocation(400, 300);
-		this.setSize(300, 300);
+	//	this.setSize(300, 300);
+		setSize(300, 300);
 		add(tfTxt, BorderLayout.SOUTH);
 		add(taContent, BorderLayout.NORTH);
 		pack();
@@ -32,11 +35,11 @@ public class ChatClient extends Frame {
 				System.exit(0);
 			}
 			
-		});
-		tfTxt.addActionListener(new TFListener());
+		});//添加关闭窗口的方法；
+		tfTxt.addActionListener(new TFListener());//在文本框输入信息后，回车执行将数据发送到服务端的操作；
 		setVisible(true);
 		connect();
-		new Thread(new RecvThread()).start();
+		tRecv.start();
 	}
 	
 	public void connect() {
@@ -57,11 +60,24 @@ System.out.println("connected!");
 	
 	public void disconnect() {
 		try {
-			dos.close();
-			s.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			bConnected=false;
+			
+			tRecv.join();//等待该线程终止
+			
+		
+		} catch(InterruptedException  e){
 			e.printStackTrace();
+		}
+		finally{
+			try{
+			dos.close();
+			dis.close();//若输入的线程没有执行完成就关闭输入流，就会抛出异常，所以在执行此操作前要关闭线程；
+			s.close();
+			}
+			catch (IOException e) {
+				
+				e.printStackTrace();
+			}
 		}
 		
 	}
