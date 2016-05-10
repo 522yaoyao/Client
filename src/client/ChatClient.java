@@ -59,7 +59,16 @@ System.out.println("connected!");
 	}
 	
 	public void disconnect() {
-		try {
+		try{
+			dos.close();
+			dis.close();//在关闭时readUTF会抛出异常；在readUTF对应的try catch语句中捕获异常并打印信息；
+			s.close();
+			}
+			catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+/*	try {
 			bConnected=false;
 			
 			tRecv.join();//等待该线程终止
@@ -79,7 +88,7 @@ System.out.println("connected!");
 				e.printStackTrace();
 			}
 		}
-		
+		*/
 	}
 	
 	private class TFListener implements ActionListener {
@@ -106,14 +115,18 @@ private class RecvThread implements Runnable{
 	public void run(){
 		try{
 			while(bConnected){
-			String str=dis.readUTF();
+			String str=dis.readUTF();//阻塞式；
 /*自己也会接收到所发的数据，文本框每次显示原本的数据加上接收到的数据*/			
 			taContent.setText(taContent.getText() + str +'\n');
 			
 			}
-		}catch(IOException e){
+		}catch(SocketException e){
+			System.out.println("关闭了！");//关闭时捕获异常并打印；
+		}
+		catch(IOException e){
 			e.printStackTrace();
 		}
 	}
+
 }
 }
