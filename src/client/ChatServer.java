@@ -69,9 +69,24 @@ System.out.println("Client实例化");
 				e.printStackTrace();
 			}
 		}
-		public void send(String str) throws IOException {
+		public void send(String str)  {
 			
-				dos.writeUTF(str);
+				try {
+					dos.writeUTF(str);
+					
+				} catch(SocketException e){
+					if(clients!=null)
+/*不可以在run方法里移除，当在run方法里报错的对象不一定是关闭的客户端，有可能是存在的客户端在调用已关闭的客户端的
+ * 时候抛出异常，这时移除this,有可能移除的不是关闭的客户端*/						
+		                   clients.remove(this);//是当前对象被关闭，应移除的是当前对象；
+							System.out.println(" 对方退出了，从list移除此实例");
+				}
+				catch (IOException e) {
+					if(clients!=null)
+		                   clients.remove(this);//是当前对象被关闭，应移除的是当前对象；
+							System.out.println(" 对方退出了，从list移除此实例");
+					e.printStackTrace();
+				}
 		
 		}
 		public void run(){
@@ -86,10 +101,6 @@ System.out.println(str);//打印接收到的信息；
 							}
 System.out.println("当前客户端的个数"+clients.size());								
                            }
-				}catch(SocketException e){
-					if(clients!=null)
-                   clients.remove(c);
-					System.out.println(" a client quit");
 				}
 			catch (EOFException e) {
 					System.out.println("Client closed !");
