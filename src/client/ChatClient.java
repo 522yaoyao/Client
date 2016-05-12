@@ -5,24 +5,25 @@ import java.io.*;
 import java.net.*;
 
 public class ChatClient extends Frame {
-	Socket s = null;
+	Socket s = null;//实现客户端的套接字；
 	DataOutputStream dos = null;
-	DataInputStream dis = null;
-	private boolean bConnected = false;
+	DataInputStream dis=null;
+	private boolean bConnected=false;
 
 	TextField tfTxt = new TextField();
 
 	TextArea taContent = new TextArea();
-	
-	Thread tRecv = new Thread(new RecvThread()); 
 
+	Thread   tRecv=new Thread(new RecvThread());
+	
 	public static void main(String[] args) {
 		new ChatClient().launchFrame(); 
 	}
 
 	public void launchFrame() {
 		setLocation(400, 300);
-		this.setSize(300, 300);
+	//	this.setSize(300, 300);
+		setSize(300, 300);
 		add(tfTxt, BorderLayout.SOUTH);
 		add(taContent, BorderLayout.NORTH);
 		pack();
@@ -34,11 +35,10 @@ public class ChatClient extends Frame {
 				System.exit(0);
 			}
 			
-		});
-		tfTxt.addActionListener(new TFListener());
+		});//添加关闭窗口的方法；
+		tfTxt.addActionListener(new TFListener());//在文本框输入信息后，回车执行将数据发送到服务端的操作；
 		setVisible(true);
 		connect();
-		
 		tRecv.start();
 	}
 	
@@ -46,9 +46,10 @@ public class ChatClient extends Frame {
 		try {
 			s = new Socket("127.0.0.1", 8888);
 			dos = new DataOutputStream(s.getOutputStream());
-			dis = new DataInputStream(s.getInputStream());
+			dis=new DataInputStream(s.getInputStream());
+			bConnected=true;
+			
 System.out.println("connected!");
-			bConnected = true;
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -58,26 +59,32 @@ System.out.println("connected!");
 	}
 	
 	public void disconnect() {
-		try {
+		try{
 			dos.close();
-			dis.close();
+			dis.close();//在关闭时readUTF会抛出异常；在readUTF对应的try catch语句中捕获异常并打印信息；
 			s.close();
-		} catch (IOException e) {
+			}
+			catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+/*	try {
+			bConnected=false;
+			
+			tRecv.join();//等待该线程终止
+			
+		
+		} catch(InterruptedException  e){
 			e.printStackTrace();
 		}
-		
-		/*
-		try {
-			bConnected = false;
-			tRecv.join();
-		} catch(InterruptedException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				dos.close();
-				dis.close();
-				s.close();
-			} catch (IOException e) {
+		finally{
+			try{
+			dos.close();
+			dis.close();//若输入的线程没有执行完成就关闭输入流，就会抛出异常，所以在执行此操作前要关闭线程；
+			s.close();
+			}
+			catch (IOException e) {
+				
 				e.printStackTrace();
 			}
 		}
@@ -88,8 +95,9 @@ System.out.println("connected!");
 
 		public void actionPerformed(ActionEvent e) {
 			String str = tfTxt.getText().trim();
+/*发送方的数据也会发给自己*/
 			//taContent.setText(str);
-			tfTxt.setText("");
+			tfTxt.setText("");//下面的文本框清空；
 			
 			try {
 //System.out.println(s);
@@ -103,25 +111,25 @@ System.out.println("connected!");
 		}
 		
 	}
-	
-	private class RecvThread implements Runnable {
-
-		public void run() {
-			try {
-				while(bConnected) {
-					String str = dis.readUTF();
-					//System.out.println(str);
-					taContent.setText(taContent.getText() + str + '\n');
-				}
-			} catch (SocketException e) {
-				System.out.println("退出了，bye!");
-			} catch (EOFException e) {
-				System.out.println("推出了，bye - bye!");
-			} catch (IOException e) {
-				e.printStackTrace();
-			} 
+private class RecvThread implements Runnable{
+	public void run(){
+		try{
+			while(bConnected){
+			String str=dis.readUTF();//阻塞式,输入流；
+/*自己也会接收到所发的数据，文本框每次显示原本的数据加上接收到的数据*/			
+			taContent.setText(taContent.getText() + str +'\n');
+			
+			}
+		}catch(SocketException e){
+			System.out.println("关闭了！");//关闭时捕获异常并打印；
+		}catch(EOFException e){
+			System.out.println("退出了");
 			
 		}
-		
+		catch(IOException e){
+			e.printStackTrace();
+		}
 	}
+
+}
 }
